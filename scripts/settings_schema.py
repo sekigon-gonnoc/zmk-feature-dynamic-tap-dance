@@ -34,18 +34,18 @@ def _default_record(context, node, slot):
 def contribute(context):
     nodes = [n for n in context.nodes
              if n.status == "okay" and "sekigon,dynamic-behavior-tap-dance" in set(n.compats)]
-    if not nodes:
-        return []
     context.validate_slot_count("tap-dance", nodes)
     maximum = context.config_values.get(
         "CONFIG_ZMK_DYNAMIC_TAP_DANCE_MAX_SLOTS",
-        max(context.node_value(node, "slot-index") for node in nodes) + 1,
+        max((context.node_value(node, "slot-index") for node in nodes), default=-1) + 1,
     )
     if type(maximum) is not int or maximum < len(nodes):
         raise ValueError(
             "tap-dance dispatcher count exceeds "
             f"CONFIG_ZMK_DYNAMIC_TAP_DANCE_MAX_SLOTS={maximum}"
         )
+    if maximum == 0:
+        return []
     declared = {
         (context.node_value(n, "module-name"), context.node_value(n, "group-name"),
          context.node_value(n, "instance-name"))
@@ -53,6 +53,7 @@ def contribute(context):
     }
     groups = []
     node_by_slot = {context.node_value(node, "slot-index"): node for node in nodes}
+    default_target_role = context.default_target_role()
     for slot in range(maximum):
         node = node_by_slot.get(slot)
         actual_device = node
@@ -60,12 +61,10 @@ def contribute(context):
             node = SimpleNamespace(
                 status="okay", compats={"sekigon,dynamic-behavior-tap-dance"},
                 props={"slot-index": SimpleNamespace(val=slot),
-                       "target-role": SimpleNamespace(
-                           val=context.node_value(nodes[0], "target-role", "keyboard-right")
-                       )},
+                       "target-role": SimpleNamespace(val=default_target_role)},
                 labels=[f"runtime_tap_dance{slot}"], name=f"runtime_tap_dance{slot}",
             )
-            actual_device = nodes[0]
+            actual_device = None
         if ("tap-dance", "slot", f"slot{slot}") in declared:
             continue
         labels = getattr(node, "labels", [])
@@ -80,6 +79,7 @@ def contribute(context):
             "slot-index": slot,
             "target-role": context.node_value(node, "target-role", "keyboard-right"),
             "actual-device": actual_device, "record-type": "tap-dance-v1", "record-max-length": 45,
+            "record-on-change-context-free": actual_device is None,
             "record-default": record, "record-on-change": "dynamic_tap_dance_record_changed",
         }))
     return groups
