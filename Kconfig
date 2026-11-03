@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: MIT
+
+config ZMK_DYNAMIC_TAP_DANCE
+	bool "Nemu-link runtime tap dance behaviors"
+	depends on ZMK_STUDIO_RPC
+	depends on ZMK_DYNAMIC_SETTINGS
+	depends on ZMK_BEHAVIOR_LOCAL_IDS
+	depends on DT_HAS_SEKIGON_DYNAMIC_BEHAVIOR_TAP_DANCE_ENABLED
+	default y
+	help
+	  Enable shared, Settings-backed dynamic tap dance slots.
+
+config ZMK_DYNAMIC_TAP_DANCE_MAX_SLOTS
+	int "Maximum runtime tap dance slots"
+	depends on ZMK_DYNAMIC_TAP_DANCE
+	range 1 32
+	default 4
+	help
+	  Maximum number of generated Settings record groups and tap dance dispatchers. The schema
+	  generator creates empty record groups when fewer behavior nodes are declared.
+
+config ZMK_DYNAMIC_TAP_DANCE_MAX_ACTIVE
+	int "Maximum simultaneous runtime tap dances"
+	depends on ZMK_DYNAMIC_TAP_DANCE
+	range 1 4
+	default 2

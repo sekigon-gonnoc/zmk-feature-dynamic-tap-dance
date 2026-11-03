@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: MIT
+
+description: Runtime Tap Dance dispatcher backed by an Nemu-link settings record
+compatible: "sekigon,dynamic-behavior-tap-dance"
+include: zero_param.yaml
+properties:
+  slot-index:
+    type: int
+    required: true
+  target-role:
+    type: string
+    description: Settings owner role for this shared tap dance record.
+  default-term-ms:
+    type: int
+    description: Initial tapping term when at least one default output is configured.
+  default-tap:
+    type: phandle-array
+    specifier-space: binding
+    description: Initial single-tap output Behavior binding.
+  default-hold:
+    type: phandle-array
+    specifier-space: binding
+    description: Initial hold output Behavior binding.
+  default-double-tap:
+    type: phandle-array
+    specifier-space: binding
+    description: Initial double-tap output Behavior binding.
+  default-tap-hold:
+    type: phandle-array
+    specifier-space: binding
+    description: Initial tap-then-hold output Behavior binding.

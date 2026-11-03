@@ -1,0 +1,6 @@
+name: zmk-feature-dynamic-tap-dance
+build:
+  cmake: .
+  kconfig: Kconfig
+  settings:
+    dts_root: .
